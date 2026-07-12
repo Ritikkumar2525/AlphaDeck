@@ -4,6 +4,7 @@ import { Search, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import NotificationBell from './NotificationBell';
+import WolfLogo from './WolfLogo';
 
 export default function TopNavigation() {
   const pathname = usePathname();
@@ -32,7 +33,8 @@ export default function TopNavigation() {
   return (
     <nav className="top-navigation">
       <div className="nav-left">
-        <Link href="/dashboard" className="logo">
+        <Link href="/dashboard" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <WolfLogo size={24} />
           AlphaDeck
         </Link>
       </div>
