@@ -33,9 +33,9 @@ export default function TopNavigation() {
   return (
     <nav className="top-navigation">
       <div className="nav-left">
-        <Link href="/dashboard" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <WolfLogo size={24} />
-          AlphaDeck
+        <Link href="/dashboard" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <WolfLogo size={32} />
+          <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '1px' }}>ALPHA<span style={{ color: 'var(--color-primary)' }}>DECK</span></span>
         </Link>
       </div>
       

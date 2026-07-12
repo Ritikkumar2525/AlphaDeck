@@ -22,10 +22,10 @@ export default function Sidebar() {
     <>
       <header className="mobile-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <WolfLogo size={16} style={{ color: '#000' }} />
+          <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--bg-default)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <WolfLogo size={20} />
           </div>
-          <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>AlphaDeck</span>
+          <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>ALPHA<span style={{ color: 'var(--color-primary)' }}>DECK</span></span>
         </div>
         <button onClick={() => setMobileOpen(true)} style={{ color: 'var(--text-primary)' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -40,10 +40,10 @@ export default function Sidebar() {
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <WolfLogo size={20} style={{ color: '#000' }} />
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--bg-default)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <WolfLogo size={24} />
               </div>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>AlphaDeck</span>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>ALPHA<span style={{ color: 'var(--color-primary)' }}>DECK</span></span>
             </div>
             <button className="mobile-header" style={{ padding: 0, border: 'none', background: 'transparent', color: 'var(--text-muted)' }} onClick={() => setMobileOpen(false)}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

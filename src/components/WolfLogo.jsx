@@ -5,20 +5,38 @@ export default function WolfLogo({ size = 24, className = '', style = {} }) {
       height={size} 
       viewBox="0 0 100 100" 
       fill="none" 
-      stroke="currentColor" 
-      strokeWidth="6" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
       className={className}
       style={style}
     >
-      {/* Left side of the face/ear */}
-      <path d="M 25 15 L 15 55 L 40 70 L 65 40" />
-      {/* Right side of the face/ear */}
-      <path d="M 75 15 L 85 55 L 60 70 L 35 40" />
-      {/* Bottom anchor/nose */}
-      <path d="M 50 75 L 50 95" />
-      <path d="M 40 80 L 50 95 L 60 80" />
+      <defs>
+        <linearGradient id="gradSilver" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#94a3b8" />
+        </linearGradient>
+        <linearGradient id="gradGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+      </defs>
+
+      {/* Left Ear */}
+      <path d="M 22 22 L 22 45 L 35 32 Z" fill="url(#gradSilver)" />
+      {/* Right Ear */}
+      <path d="M 78 22 L 78 45 L 65 32 Z" fill="url(#gradSilver)" />
+      
+      {/* Jaw (Green) */}
+      <path d="M 24 45 L 50 72 L 76 45" stroke="url(#gradGreen)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+      {/* Center 'A' (Silver) */}
+      <path d="M 30 65 L 50 25 L 70 65" stroke="url(#gradSilver)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+      {/* Inner Arrow (Green) */}
+      <path d="M 40 50 L 50 38 L 60 50 Z" fill="url(#gradGreen)" />
+
+      {/* Vertical Chart Bars (Green) */}
+      <rect x="41" y="54" width="4" height="15" fill="url(#gradGreen)" rx="1" />
+      <rect x="48" y="47" width="4" height="22" fill="url(#gradGreen)" rx="1" />
+      <rect x="55" y="54" width="4" height="15" fill="url(#gradGreen)" rx="1" />
     </svg>
   );
 }
