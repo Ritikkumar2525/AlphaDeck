@@ -15,9 +15,25 @@ export default function ConsentBanner() {
     }
   }, []);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem('alphadeck_consent', 'true');
     setIsVisible(false);
+    
+    // Request notification permission on accept
+    if ('Notification' in window && Notification.permission === 'default') {
+      try {
+        const p = await Notification.requestPermission();
+        localStorage.setItem('alphaDeck_notification_permission', p);
+        if (p === 'granted') {
+          new Notification('AlphaDeck Notifications Enabled', {
+            body: 'You will now receive important market alerts.',
+            icon: '/icon.svg'
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
 
   const handleDecline = () => {
@@ -56,9 +72,9 @@ export default function ConsentBanner() {
       >
         <div style={{ flex: '1 1 600px' }}>
           <p className="text-sm" style={{ color: 'var(--text-primary)', lineHeight: '1.6', margin: 0 }}>
-            <strong style={{ color: 'var(--color-primary)' }}>Terms & Policy Notification:</strong> By continuing to use AlphaDeck, you agree to our <a href="#" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Terms of Service</a>. 
-            You also acknowledge that our updated <a href="#" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Privacy Policy</a> applies. 
-            We and our partners use cookies and similar technologies to personalize your experience, provide premium market data, and analyze platform usage.
+            <strong style={{ color: 'var(--color-primary)' }}>Terms & Policy Notification:</strong> By continuing to use AlphaDeck, you agree to our <a href="#" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Terms of Service</a> and <a href="#" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>Privacy Policy</a>. 
+            This application is designed exclusively for stock analysis and informational purposes. It does not constitute financial advice, and we are not responsible for any trading decisions, financial losses, or other outcomes. 
+            We use cookies to personalize your experience and analyze platform usage.
           </p>
         </div>
         <div style={{ flexShrink: 0, display: 'flex', gap: '12px' }}>
