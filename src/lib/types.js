@@ -44,15 +44,15 @@ export const AnalysisResultSchema = z.object({
   })).optional(),
   historicalData: z.array(z.object({
     date: z.string(),
-    close: z.number(),
-    volume: z.number().optional()
+    close: z.number().nullable().optional(),
+    volume: z.number().nullable().optional()
   })).optional(),
   options: z.array(z.object({
-    strike: z.number(),
-    expiration: z.string(),
-    type: z.string(),
-    impliedVolatility: z.number().optional(),
-    openInterest: z.number().optional()
+    strike: z.number().nullable().optional(),
+    expiration: z.string().nullable().optional(),
+    type: z.string().nullable().optional(),
+    impliedVolatility: z.number().nullable().optional(),
+    openInterest: z.number().nullable().optional()
   })).optional(),
   holders: z.array(z.object({
     name: z.string(),
