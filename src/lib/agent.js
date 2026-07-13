@@ -1,4 +1,5 @@
 import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { getMarketData } from "./marketProvider";
 import { AnalysisResultSchema } from "./types";
 import { logger } from "./logger";
@@ -49,6 +50,18 @@ Gather insights solely from the provided data, then return ONLY the JSON object 
 function getConfiguredAIProviders() {
   const providers = [];
 
+  // Priority 1: Google Gemini (Fastest, largest context limit)
+  if (process.env.GOOGLE_API_KEY) {
+    providers.push({
+      name: "Google Gemini",
+      model: new ChatGoogleGenerativeAI({
+        model: "gemini-1.5-flash",
+        temperature: 0.1,
+        apiKey: process.env.GOOGLE_API_KEY,
+      }),
+    });
+  }
+
   // Priority 1: OpenAI (Fastest, most reliable)
   if (process.env.OPENAI_API_KEY) {
     providers.push({
@@ -79,7 +92,7 @@ function getConfiguredAIProviders() {
     providers.push({
       name: "Groq",
       model: new ChatOpenAI({
-        modelName: "llama-3.3-70b-versatile",
+        modelName: "llama-3.1-8b-instant",
         temperature: 0.1,
         apiKey: process.env.GROQ_API_KEY,
         configuration: { baseURL: "https://api.groq.com/openai/v1" },
@@ -245,8 +258,21 @@ export async function analyzeCompany(companyQuery) {
   // 3. Fetch all market data via the unified market data provider cascade 
   const marketData = await getMarketData(sanitizedQuery);
 
-  // 4. Construct prompt
-  const prompt = `${SYSTEM_PROMPT}\n\nRAW MARKET DATA TO ANALYZE:\n${JSON.stringify(marketData, null, 2)}`;
+  // 4. Construct prompt with aggressively pruned data to prevent AI timeout
+  const prunedData = {
+    symbol: marketData.symbol,
+    companyName: marketData.companyName,
+    quote: marketData.quote,
+    profile: marketData.profile,
+    statistics: marketData.statistics,
+    financials: marketData.financials,
+    // Truncate massive arrays to save context window and speed up AI generation dramatically
+    news: (marketData.news || []).slice(0, 3),
+    historicalData: (marketData.historicalData || []).slice(-10),
+    options: (marketData.options || []).slice(0, 5),
+    holders: (marketData.holders || []).slice(0, 5),
+  };
+  const prompt = `${SYSTEM_PROMPT}\n\nRAW MARKET DATA TO ANALYZE:\n${JSON.stringify(prunedData, null, 2)}`;
 
   // 5. Invoke AI with multi-provider fallback
   const outputText = await invokeAIWithFallback(prompt);
