@@ -79,7 +79,7 @@ function getConfiguredAIProviders() {
     providers.push({
       name: "Groq",
       model: new ChatOpenAI({
-        modelName: "llama-3.1-70b-versatile", // Fixed decommissioned model
+        modelName: "llama3-8b-8192", // Supported model
         temperature: 0.1,
         apiKey: process.env.GROQ_API_KEY,
         configuration: { baseURL: "https://api.groq.com/openai/v1" },
