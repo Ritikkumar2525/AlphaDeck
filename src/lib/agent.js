@@ -49,7 +49,19 @@ Gather insights solely from the provided data, then return ONLY the JSON object 
 function getConfiguredAIProviders() {
   const providers = [];
 
-  // Priority 1: OpenRouter
+  // Priority 1: OpenAI (Fastest, most reliable)
+  if (process.env.OPENAI_API_KEY) {
+    providers.push({
+      name: "OpenAI",
+      model: new ChatOpenAI({
+        modelName: "gpt-4o-mini",
+        temperature: 0.1,
+        apiKey: process.env.OPENAI_API_KEY,
+      }),
+    });
+  }
+
+  // Priority 2: OpenRouter
   if (process.env.OPENROUTER_API_KEY) {
     providers.push({
       name: "OpenRouter",
@@ -62,12 +74,12 @@ function getConfiguredAIProviders() {
     });
   }
 
-  // Priority 2: Groq
+  // Priority 3: Groq
   if (process.env.GROQ_API_KEY) {
     providers.push({
       name: "Groq",
       model: new ChatOpenAI({
-        modelName: "llama3-70b-8192",
+        modelName: "llama-3.1-70b-versatile", // Fixed decommissioned model
         temperature: 0.1,
         apiKey: process.env.GROQ_API_KEY,
         configuration: { baseURL: "https://api.groq.com/openai/v1" },
@@ -75,12 +87,12 @@ function getConfiguredAIProviders() {
     });
   }
 
-  // Priority 3: Cerebras
+  // Priority 4: Cerebras
   if (process.env.CEREBRAS_API_KEY) {
     providers.push({
       name: "Cerebras",
       model: new ChatOpenAI({
-        modelName: "llama3.1-70b",
+        modelName: "llama3.1-8b", // Fixed 404 model
         temperature: 0.1,
         apiKey: process.env.CEREBRAS_API_KEY,
         configuration: { baseURL: "https://api.cerebras.ai/v1" },
@@ -88,7 +100,7 @@ function getConfiguredAIProviders() {
     });
   }
 
-  // Priority 4: Mistral AI
+  // Priority 5: Mistral AI
   if (process.env.MISTRAL_API_KEY) {
     providers.push({
       name: "Mistral AI",
@@ -101,7 +113,7 @@ function getConfiguredAIProviders() {
     });
   }
 
-  // Priority 5: Fireworks AI
+  // Priority 6: Fireworks AI
   if (process.env.FIREWORKS_API_KEY) {
     providers.push({
       name: "Fireworks AI",
@@ -114,7 +126,7 @@ function getConfiguredAIProviders() {
     });
   }
 
-  // Priority 6: DeepInfra
+  // Priority 7: DeepInfra
   if (process.env.DEEPINFRA_API_KEY) {
     providers.push({
       name: "DeepInfra",
@@ -123,18 +135,6 @@ function getConfiguredAIProviders() {
         temperature: 0.1,
         apiKey: process.env.DEEPINFRA_API_KEY,
         configuration: { baseURL: "https://api.deepinfra.com/v1/openai" },
-      }),
-    });
-  }
-
-  // Priority 7: OpenAI
-  if (process.env.OPENAI_API_KEY) {
-    providers.push({
-      name: "OpenAI",
-      model: new ChatOpenAI({
-        modelName: "gpt-4o-mini",
-        temperature: 0.1,
-        apiKey: process.env.OPENAI_API_KEY,
       }),
     });
   }
