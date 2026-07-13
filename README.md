@@ -1,263 +1,82 @@
-# InvestIQ — AI Investment Research Terminal
+# AlphaDeck - AI Investment Research Agent
 
-> An AI-powered investment research agent that takes a company name, conducts comprehensive research, and delivers an **INVEST** or **PASS** decision with detailed reasoning.
+## Overview - What it does
+AlphaDeck is an Institutional-Grade AI Investment Research Assistant. It combines the expertise of a Wall Street Equity Research Analyst, CFA, and Financial Risk Analyst to provide comprehensive, evidence-based investment analysis. Given a stock ticker (e.g., AAPL, SBIN), it aggregates real-time market data, technical indicators, financial statements, and news from multiple financial APIs, and leverages Large Language Models (LLMs) to synthesize a structured investment decision (INVEST, HOLD, or PASS) along with detailed reasoning, price targets, and risk assessments.
 
-Built for the **InsideIIM × Altuni AI Labs** AI Product Development Engineer (Intern) take-home assignment.
-
----
-
-## Overview
-
-InvestIQ is a full-stack AI research terminal that automates the investment research process. Enter any company name (e.g., "NVIDIA", "Apple", "Tesla") and the AI agent will:
-
-1. **Resolve** the company to its stock ticker
-2. **Fetch** real-time stock price data
-3. **Analyze** financial statements (revenue, net income, EPS, P/E ratio, margins)
-4. **Gather** recent news and sentiment
-5. **Synthesize** all data into a structured **INVEST / PASS** decision with confidence score and reasoning
-
-The frontend renders a premium dark-theme investment dashboard — designed in Google Stitch and implemented pixel-perfectly.
-
----
-
-## How to Run It
+## How to run it - Setup and run steps
 
 ### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm or yarn
+- API Keys for AI and Market Data Providers
 
-- **Node.js** 18+ and **npm**
-- **Google Gemini API Key** (free): Get one at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-- *(Optional)* **Financial Modeling Prep API Key** (free tier): [https://financialmodelingprep.com/developer](https://financialmodelingprep.com/developer)
+### Installation
+1. Clone the repository and navigate to the project folder:
+   ```bash
+   git clone <repository-url>
+   cd AlphaDeck
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables by creating a `.env.local` file in the root directory:
+   ```env
+   # AI Providers (Fallback Cascade)
+   GOOGLE_API_KEY=your_gemini_api_key
+   OPENAI_API_KEY=your_openai_api_key
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   GROQ_API_KEY=your_groq_api_key
 
-### Setup & Run
+   # Market Data Providers
+   FINNHUB_API_KEY=your_finnhub_key
+   TWELVEDATA_API_KEY=your_twelvedata_key
+   POLYGON_API_KEY=your_polygon_key
+   TIINGO_API_KEY=your_tiingo_key
+   ```
 
+### Running Locally
+To start the development server:
 ```bash
-# 1. Clone the repo and navigate to the project
-cd investiq
-
-# 2. Install dependencies
-npm install
-
-# 3. Create .env.local file with your API keys
-cp .env.example .env.local
-# Edit .env.local and add your keys:
-#   GOOGLE_API_KEY=your_gemini_api_key_here
-#   FMP_API_KEY=your_fmp_api_key_here (optional)
-
-# 4. Run the development server
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) in your browser. Enter a valid stock ticker in the search bar to generate a report.
 
-Open [http://localhost:3000](http://localhost:3000) and start analyzing companies!
-
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GOOGLE_API_KEY` | Yes | Google Gemini API key for AI reasoning |
-| `FMP_API_KEY` | No | Financial Modeling Prep API key for real financial data |
-
-> **Note**: The app includes comprehensive mock data for major companies (NVDA, AAPL, TSLA, MSFT, GOOGL, AMZN, META), so it works even without API keys for demo purposes.
-
----
-
-## How It Works
+## How it works - Approach and Architecture
 
 ### Architecture
+AlphaDeck is built on a modern Next.js 14 stack utilizing the App Router, React Server Components, and Tailwind CSS for the frontend interface. The backend API route (`/api/analyze`) orchestrates a complex data retrieval and AI generation pipeline:
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Frontend (Next.js)                │
-│  ┌──────────┐  ┌──────────────────────────────────┐ │
-│  │ Sidebar   │  │ Dashboard                        │ │
-│  │           │  │  ┌─────────────────────────────┐ │ │
-│  │ • New     │  │  │ Search Bar                  │ │ │
-│  │ • History │  │  │ "Enter company name..."     │ │ │
-│  │ • Watch   │  │  ├─────────────────────────────┤ │ │
-│  │           │  │  │ Company Header + INVEST/PASS│ │ │
-│  │           │  │  ├──────────┬──────────────────┤ │ │
-│  │           │  │  │ Stock    │ Financial Metrics │ │ │
-│  │           │  │  │ Overview │                  │ │ │
-│  │           │  │  ├──────────┴──────────────────┤ │ │
-│  │           │  │  │ Revenue Chart (Recharts)    │ │ │
-│  │           │  │  ├─────────────────────────────┤ │ │
-│  │           │  │  │ AI Analysis + Decision Card │ │ │
-│  │           │  │  ├─────────────────────────────┤ │ │
-│  │           │  │  │ News Panel                  │ │ │
-│  └──────────┘  │  └─────────────────────────────┘ │ │
-│                └──────────────────────────────────┘ │
-└──────────────────────┬──────────────────────────────┘
-                       │ POST /api/analyze
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│              Backend (Next.js API Routes)            │
-│                                                     │
-│  ┌───────────────────────────────────────────────┐  │
-│  │           LangChain.js ReAct Agent            │  │
-│  │                                               │  │
-│  │  ┌─────────────┐  ┌────────────────────────┐  │  │
-│  │  │ Gemini 2.0   │  │ Tools:                │  │  │
-│  │  │ Flash LLM    │──│ • fetchStockPrice     │  │  │
-│  │  │              │  │ • fetchFinancials      │  │  │
-│  │  │ System prompt│  │ • fetchCompanyProfile  │  │  │
-│  │  │ = Sr. Analyst│  │ • fetchNews           │  │  │
-│  │  └─────────────┘  └────────────────────────┘  │  │
-│  │                                               │  │
-│  │  Output: Structured AnalysisResult JSON       │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
+1. **Input Sanitization & Caching:** The incoming ticker symbol is validated and checked against an in-memory cache (NodeCache) to return instant results for previously generated reports, saving API limits and time.
+2. **Data Aggregation Cascade:** A highly resilient `marketProvider.js` module attempts to fetch financial data using a fallback cascade mechanism. It prioritizes free/unlimited APIs like `yahoo-finance2` and falls back to Finnhub, TwelveData, Polygon, and Tiingo to prevent failures due to rate limits or missing data.
+3. **AI Generation Pipeline:** The aggregated market data is structured into a pruned JSON payload and sent to `agent.js`. This module uses LangChain to interface with an LLM. It also features a robust fallback mechanism, attempting generation via Google Gemini, OpenAI, OpenRouter, and Groq (using `llama-3.1-8b-instant` for ultra-fast generation within Vercel's strict serverless timeout limits).
+4. **Structured Output Validation:** The AI response is enforced as a strict JSON structure and parsed robustly before being returned to the client.
 
-### Agent Flow
+## Key decisions & trade-offs
 
-1. **User Input** → Company name (e.g., "NVIDIA")
-2. **LangChain ReAct Agent** orchestrates the research:
-   - Calls `fetchCompanyProfile` to get company info and ticker
-   - Calls `fetchStockPrice` for current market data
-   - Calls `fetchFinancials` for financial statements
-   - Calls `fetchNews` for recent news and sentiment
-3. **AI Reasoning** → Gemini 2.0 Flash analyzes all gathered data
-4. **Decision** → Structured INVEST/PASS with confidence, reasoning, strengths, risks
-5. **Frontend** → Renders the beautiful dashboard with all data
+- **Strict Vercel Timeout Constraints:** Vercel's Hobby plan imposes a hard 10-second timeout on serverless functions. To overcome this, the AI context size was aggressively pruned (reducing historical data and news limits) and the fallback model was downgraded from a 70B parameter model to an 8B parameter model (`llama-3.1-8b-instant`). **Trade-off:** We sacrificed some depth in historical analysis to guarantee the application responds within the 10-second limit and prevents `504 Gateway Timeout` errors.
+- **Provider Redundancy over Monolithic API:** Instead of relying entirely on a single paid API (like Bloomberg or strict OpenAI), AlphaDeck implements a multi-provider fallback cascade for both data and AI. **Trade-off:** This dramatically increases system resilience and allows the app to function entirely on free tiers, but adds complexity to the backend data normalization.
+- **Client-Side vs Server-Side Data Fetching:** All data aggregation and AI generation happen securely on the server (`/api/analyze`). **Trade-off:** This hides sensitive API keys from the client and allows for centralized caching, though it forces the user to wait for the entire process to complete before seeing results.
 
-### Tech Stack
+## Example runs
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| **Frontend** | Next.js 15 (App Router) | Modern React framework with SSR |
-| **Styling** | Vanilla CSS (dark theme) | Maximum control, no bloat |
-| **Charts** | Recharts | Lightweight, React-native charting |
-| **Icons** | Lucide React | Clean, consistent icon set |
-| **AI Agent** | LangChain.js | Agent orchestration with tool-calling |
-| **LLM** | Google Gemini 2.0 Flash | Fast, capable, free tier available |
-| **Data** | Financial Modeling Prep API | Free financial data API |
-| **Language** | TypeScript | Type safety across the stack |
+**Ticker: SBIN.NS (State Bank of India)**
+- **Decision:** HOLD (Confidence: 75%)
+- **Strengths:** Strong market capitalization, positive trailing returns, robust banking infrastructure.
+- **Risks:** High sensitivity to interest rate changes, moderate short-term price volatility.
+- **Output:** The LLM successfully ingested the Yahoo Finance data cascade and delivered a detailed breakdown of the bull and bear case.
 
----
+**Ticker: AAPL (Apple Inc.)**
+- **Decision:** INVEST (Confidence: 85%)
+- **Strengths:** Massive free cash flow, dominant market share, aggressive stock buybacks.
+- **Risks:** Slowing iPhone growth in emerging markets, antitrust regulatory pressures.
+- **Output:** The AI accurately assessed Apple's massive gross margins and provided a 12-18 month price target, parsing the complex options chain and news sentiment into a cohesive summary.
 
-## Key Decisions & Trade-offs
+## What you would improve with more time
+1. **Streaming Responses:** Implement Server-Sent Events (SSE) or React Server Actions with `AI SDK` to stream the LLM response to the frontend in real-time, greatly improving perceived performance and bypassing the 10-second Vercel timeout organically.
+2. **Interactive Charting:** Integrate advanced TradingView or Recharts components for the historical data array to allow users to visually inspect technical indicators.
+3. **Database Persistence:** Replace the temporary NodeCache with a persistent database like PostgreSQL (Vercel Postgres) or Redis to store historical AI reports, user accounts, and watchlist portfolios.
+4. **Agentic Workflows:** Give the AI actual tool-calling capabilities (e.g., executing a web search if the API returns missing news, or querying a SEC Edgar API for deeper 10-K analysis).
 
-### 1. LangChain.js ReAct Agent vs. Simple Chain
-**Decision**: Used ReAct (Reasoning + Acting) agent pattern.
-**Why**: The agent can dynamically decide which tools to call and in what order, making it more flexible than a fixed chain. It can handle edge cases (e.g., unknown company names) by reasoning about the situation.
-
-### 2. Google Gemini vs. OpenAI
-**Decision**: Google Gemini 2.0 Flash as the default LLM.
-**Why**: Free tier available (essential for a take-home assignment), fast response times, strong reasoning capabilities. The architecture is provider-agnostic via LangChain — switching to GPT-4 requires only changing the model import.
-
-### 3. Mock Data Fallback
-**Decision**: Comprehensive mock data for 7 major companies built in.
-**Why**: Financial APIs have rate limits and require registration. Mock data ensures the app always works for demo purposes while still supporting real API calls when keys are provided.
-
-### 4. Vanilla CSS vs. Tailwind/CSS-in-JS
-**Decision**: Vanilla CSS with CSS custom properties.
-**Why**: Maximum control over the dark theme design system, no build-time dependencies, and the design was complex enough to warrant custom styles. CSS custom properties provide theming flexibility.
-
-### 5. Server-side API Route
-**Decision**: All API calls happen server-side via `/api/analyze`.
-**Why**: API keys stay secure on the server. The LLM call and financial data fetching happen server-side, with only the final result sent to the client.
-
-### What I Left Out
-- **Real-time WebSocket updates** — Would add live price tracking but increases complexity
-- **User authentication** — Not required for the assignment scope
-- **Database/persistence** — Analysis history could be stored but wasn't required
-- **Multiple LLM comparison** — Could compare Gemini vs GPT-4 analysis but adds latency
-
----
-
-## Example Runs
-
-### NVIDIA (NVDA) — INVEST Decision
-```
-Company: NVIDIA Corp. (NVDA)
-Decision: INVEST (87% confidence)
-Summary: NVIDIA dominates the AI accelerator market with exceptional revenue growth,
-         strong margins, and unmatched competitive position in GPU computing.
-
-Strengths:
-✅ Revenue growth of 125%+ YoY driven by AI demand
-✅ Dominant market position in AI/ML training hardware
-✅ Gross margins above 70%
-✅ Strong free cash flow generation
-
-Risks:
-⚠️ High valuation (P/E > 60x)
-⚠️ Customer concentration risk
-⚠️ Potential competition from custom AI chips (Google TPU, Amazon Trainium)
-```
-
-### Tesla (TSLA) — Analysis Example
-```
-Company: Tesla, Inc. (TSLA)
-Decision: PASS (42% confidence)
-Summary: While Tesla leads in EV innovation, margin compression and
-         increasing competition present near-term headwinds.
-
-Strengths:
-✅ Brand recognition and market leadership in EVs
-✅ Vertically integrated manufacturing
-✅ Energy storage business growth
-
-Risks:
-⚠️ Declining automotive margins
-⚠️ Intense competition from legacy automakers and Chinese EVs
-⚠️ CEO distraction risk
-```
-
----
-
-## Project Structure
-
-```
-investiq/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── analyze/
-│   │   │       └── route.ts        # AI analysis API endpoint
-│   │   ├── globals.css             # Dark theme design system
-│   │   ├── layout.tsx              # Root layout with fonts
-│   │   └── page.tsx                # Main dashboard page
-│   ├── components/
-│   │   ├── AIAnalysis.tsx          # AI reasoning panel
-│   │   ├── CompanyHeader.tsx       # Company name + decision badge
-│   │   ├── DecisionCard.tsx        # INVEST/PASS card
-│   │   ├── FinancialMetrics.tsx    # Key financial metrics grid
-│   │   ├── LoadingState.tsx        # Terminal-style loading
-│   │   ├── NewsPanel.tsx           # Recent news with sentiment
-│   │   ├── RevenueChart.tsx        # Revenue bar chart
-│   │   ├── SearchBar.tsx           # Company search input
-│   │   ├── Sidebar.tsx             # Navigation sidebar
-│   │   └── StockOverview.tsx       # Stock price overview
-│   └── lib/
-│       ├── agent.ts                # LangChain.js ReAct agent
-│       ├── tools.ts                # Agent tools (data fetching)
-│       └── types.ts                # TypeScript interfaces
-├── .env.example                    # Environment variables template
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
----
-
-## Deploying to Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Set environment variables on Vercel dashboard:
-# GOOGLE_API_KEY=your_key
-# FMP_API_KEY=your_key (optional)
-```
-
-Or connect your GitHub repo to Vercel for automatic deployments.
-
----
-
-## License
-
-Built for the InsideIIM × Altuni AI Labs internship assignment.
+## Bonus: LLM Chat Transcript
+As part of the assignment requirements, the full LLM chat session transcript/log that was used to build this project is included in the `LLM_Chat_Transcript` directory. It showcases the thought process, debugging steps (such as overcoming the Vercel 504 timeouts and implementing the fallback cascade), and architectural decisions made collaboratively during development.

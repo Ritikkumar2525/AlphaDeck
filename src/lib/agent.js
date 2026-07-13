@@ -57,6 +57,7 @@ function getConfiguredAIProviders() {
       model: new ChatGoogleGenerativeAI({
         model: "gemini-1.5-flash",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.GOOGLE_API_KEY,
       }),
     });
@@ -69,6 +70,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "gpt-4o-mini",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.OPENAI_API_KEY,
       }),
     });
@@ -81,6 +83,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "anthropic/claude-3-haiku",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.OPENROUTER_API_KEY,
         configuration: { baseURL: "https://openrouter.ai/api/v1" },
       }),
@@ -94,6 +97,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "llama-3.1-8b-instant",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.GROQ_API_KEY,
         configuration: { baseURL: "https://api.groq.com/openai/v1" },
       }),
@@ -107,6 +111,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "llama3.1-8b", // Fixed 404 model
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.CEREBRAS_API_KEY,
         configuration: { baseURL: "https://api.cerebras.ai/v1" },
       }),
@@ -120,6 +125,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "mistral-large-latest",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.MISTRAL_API_KEY,
         configuration: { baseURL: "https://api.mistral.ai/v1" },
       }),
@@ -133,6 +139,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "accounts/fireworks/models/llama-v3-70b-instruct",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.FIREWORKS_API_KEY,
         configuration: { baseURL: "https://api.fireworks.ai/inference/v1" },
       }),
@@ -146,6 +153,7 @@ function getConfiguredAIProviders() {
       model: new ChatOpenAI({
         modelName: "meta-llama/Meta-Llama-3-70B-Instruct",
         temperature: 0.1,
+        maxRetries: 0,
         apiKey: process.env.DEEPINFRA_API_KEY,
         configuration: { baseURL: "https://api.deepinfra.com/v1/openai" },
       }),
@@ -319,12 +327,12 @@ export async function analyzeCompany(companyQuery) {
       annualData: [],
     },
     news: (marketData.news || []).slice(0, 8).map(n => ({
-      title: n.title || "Untitled News",
-      source: n.source || "Web",
-      url: n.url || "#",
-      publishedAt: n.publishedAt || new Date().toISOString(),
-      summary: n.summary || "",
-      sentiment: n.sentiment || "neutral"
+      title: String(n.title || "Untitled News"),
+      source: String(n.source || "Web"),
+      url: String(n.url || "#"),
+      publishedAt: n.publishedAt ? new Date(n.publishedAt).toISOString() : new Date().toISOString(),
+      summary: String(n.summary || ""),
+      sentiment: String(n.sentiment || "neutral")
     })),
     historicalData: marketData.historicalData || [],
     options: marketData.options || [],
@@ -339,7 +347,8 @@ export async function analyzeCompany(companyQuery) {
     cache.set(aiCacheKey, validated, cache.constructor.TTL.AI_REPORT);
     return validated;
   } catch (zodError) {
-    logger.error(`Zod Validation Error: ${JSON.stringify(zodError.errors)}`);
+    logger.error(`Zod Validation Error:`, zodError);
+    logger.error(`Failed payload decision block:`, JSON.stringify(parsedDecision, null, 2));
     throw new Error("AI_PARSE_ERROR: The AI returned data that failed schema validation.");
   }
 }
