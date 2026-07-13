@@ -6,7 +6,7 @@ function TradingViewTechnicals({ symbol }) {
 
   useEffect(() => {
     if (container.current) {
-      container.current.innerHTML = '';
+      container.current.innerHTML = '<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
     }
     
     const script = document.createElement("script");
@@ -14,8 +14,20 @@ function TradingViewTechnicals({ symbol }) {
     script.type = "text/javascript";
     script.async = true;
     
-    const tvSymbol = symbol ? symbol.replace('.NS', '') : 'AAPL';
-    const exchangePrefix = symbol && symbol.includes('.NS') ? 'NSE:' : '';
+    let tvSymbol = 'AAPL';
+    let exchangePrefix = '';
+    
+    if (symbol) {
+      if (symbol.endsWith('.NS')) {
+        tvSymbol = symbol.replace('.NS', '');
+        exchangePrefix = 'NSE:';
+      } else if (symbol.endsWith('.BO')) {
+        tvSymbol = symbol.replace('.BO', '');
+        exchangePrefix = 'BSE:';
+      } else {
+        tvSymbol = symbol;
+      }
+    }
     
     script.innerHTML = `
       {
@@ -37,7 +49,6 @@ function TradingViewTechnicals({ symbol }) {
     <div className="card" style={{ height: '450px', padding: '16px' }}>
       <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px' }}>Technical Analysis</h3>
       <div className="tradingview-widget-container" ref={container} style={{ height: "calc(100% - 40px)", width: "100%" }}>
-        <div className="tradingview-widget-container__widget" style={{ height: "100%", width: "100%" }}></div>
       </div>
     </div>
   );

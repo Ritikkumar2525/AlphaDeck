@@ -5,9 +5,9 @@ function TradingViewAdvancedChart({ symbol }) {
   const container = useRef();
 
   useEffect(() => {
-    // Clear container if re-rendering
+    // Clear container and recreate widget div if re-rendering
     if (container.current) {
-      container.current.innerHTML = '';
+      container.current.innerHTML = '<div id="tradingview_advanced_chart" class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
     }
     
     // Create script element
@@ -16,10 +16,20 @@ function TradingViewAdvancedChart({ symbol }) {
     script.type = "text/javascript";
     script.async = true;
     
-    // Convert symbol like "IRFC.NS" to something TV might prefer, or just pass as is.
-    // TV handles most raw symbols well enough.
-    const tvSymbol = symbol ? symbol.replace('.NS', '') : 'AAPL';
-    const exchangePrefix = symbol && symbol.includes('.NS') ? 'NSE:' : '';
+    let tvSymbol = 'AAPL';
+    let exchangePrefix = '';
+    
+    if (symbol) {
+      if (symbol.endsWith('.NS')) {
+        tvSymbol = symbol.replace('.NS', '');
+        exchangePrefix = 'NSE:';
+      } else if (symbol.endsWith('.BO')) {
+        tvSymbol = symbol.replace('.BO', '');
+        exchangePrefix = 'BSE:';
+      } else {
+        tvSymbol = symbol;
+      }
+    }
     
     script.innerHTML = `
       {
@@ -46,7 +56,6 @@ function TradingViewAdvancedChart({ symbol }) {
   return (
     <div className="card" style={{ height: '600px', padding: '0', overflow: 'hidden' }}>
       <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }}>
-        <div className="tradingview-widget-container__widget" style={{ height: "100%", width: "100%" }}></div>
       </div>
     </div>
   );

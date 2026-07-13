@@ -19,14 +19,7 @@ function isNonRetryableError(msg) {
 }
 
 const PROVIDER_ORDER = [
-  { name: 'yahoo', prefix: 'Yahoo', mod: yahoo },
-  { name: 'finnhub', prefix: 'Finnhub', mod: finnhub },
-  { name: 'twelvedata', prefix: 'TwelveData', mod: twelvedata },
-  { name: 'polygon', prefix: 'Polygon', mod: polygon },
-  { name: 'tiingo', prefix: 'Tiingo', mod: tiingo },
-  { name: 'alphavantage', prefix: 'AlphaVantage', mod: alphavantage },
-  { name: 'eodhd', prefix: 'EODHD', mod: eodhd },
-  { name: 'marketstack', prefix: 'Marketstack', mod: marketstack }
+  { name: 'yahoo', prefix: 'Yahoo', mod: yahoo }
 ];
 
 async function fetchWithRetry(providerName, fn, symbol) {
